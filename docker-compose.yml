@@ -1,25 +1,32 @@
-version: "3.8"
+version: '3.8'
 services:
   nestjs:
     container_name: nestjs_container
     build:
-      context: .
+      context: ./
       dockerfile: ./Dockerfile
     ports:
-      - "80:3000"
+      - '80:3000'
     depends_on:
       - postgres
     volumes:
-      - nestjs-task-app-data:/app
+      - ./:/app
       - /app/node_modules
+    environment:
+      DB_HOST: pg_container
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: admin
+      DB_DATABASE: nestjs-task-app
 
   postgres:
-    image: postgres
+    image: postgres:alpine
     container_name: pg_container
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
+      TZ: 'Asia/Thailand'
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     volumes:
@@ -32,14 +39,14 @@ services:
     container_name: pgadmin4_container
     restart: always
     ports:
-      - "5050:80"
+      - '5050:80'
     environment:
       PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_USER: pgadmin4
       PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
       - pgadmin4-data:/var/lib/pgadmin
 
 volumes:
-  nestjs-task-app-data:
   postgres-data:
   pgadmin4-data:
