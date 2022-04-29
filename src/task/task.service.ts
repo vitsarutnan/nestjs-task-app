@@ -17,58 +17,49 @@ export class TaskService {
   ) {}
 
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    try {
-      const { title, description } = createTaskDto;
-      const task = this.taskRepository.create({ title, description });
-      await this.taskRepository.save(task);
-      return task;
-    } catch (error) {
-      throw new ConflictException({ error });
-    }
+    const { title, description } = createTaskDto;
+    const task = this.taskRepository.create({ title, description });
+    await this.taskRepository.save(task);
+    return task;
   }
 
   async getTasks(): Promise<Task[]> {
-    try {
-      const tasks = await this.taskRepository.find();
-      return tasks;
-    } catch (error) {
-      throw new ConflictException({ error });
-    }
+    const tasks = await this.taskRepository.find();
+    return tasks;
   }
 
   async getTask(id: string): Promise<Task> {
-    try {
-      const task = await this.taskRepository.findOne(id);
+    const task = await this.taskRepository.findOne(id);
+
+    if (task) {
       return task;
-    } catch (error) {
-      throw new ConflictException({ error });
     }
+
+    throw new NotFoundException(`Task with id "${id}" not found`);
   }
 
   async updateTask(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    try {
-      const { title, description } = updateTaskDto;
-      const task = await this.getTask(id);
+    const { title, description } = updateTaskDto;
+    const task = await this.getTask(id);
 
-      if (task) {
-        task.title = title;
-        task.description = description;
-      }
-
+    if (task) {
+      task.title = title;
+      task.description = description;
       await this.taskRepository.save(task);
       return task;
-    } catch (error) {
-      throw new ConflictException({ error });
     }
+
+    throw new NotFoundException(`Task with id "${id}" not found`);
   }
 
   async deleteTask(id: string): Promise<Task> {
-    try {
-      const task = await this.getTask(id);
+    const task = await this.getTask(id);
+
+    if (task) {
       await this.taskRepository.delete(id);
       return task;
-    } catch (error) {
-      throw new ConflictException({ error });
     }
+
+    throw new NotFoundException(`Task with id "${id}" not found`);
   }
 }
